@@ -4,6 +4,7 @@ import {
   Platform,
   ViewStyle,
 } from 'react-native';
+import PropTypes from 'prop-types';
 
 const LINKING_ERROR =
   `The package 'react-native-mlkit-barcode' doesn't seem to be linked. Make sure: \n\n` +
@@ -11,16 +12,16 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo managed workflow\n';
 
-type MlkitBarcodeProps = {
-  color: string;
-  style: ViewStyle;
+MlkitBarcodeProps = {
+  color: PropTypes.string,
+  style: ViewStyle,
 };
 
-const ComponentName = 'MlkitBarcodeView';
-
-export const MlkitBarcodeView =
+const ComponentName = 'MlkitBarcodeViewManager';
+ 
+export const MlkitBarcodeViewManager =
   UIManager.getViewManagerConfig(ComponentName) != null
-    ? requireNativeComponent<MlkitBarcodeProps>(ComponentName)
+    ? requireNativeComponent(ComponentName)
     : () => {
-        throw new Error(LINKING_ERROR);
-      };
+      throw new Error(LINKING_ERROR);
+    };
