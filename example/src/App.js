@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, SafeAreaView } from 'react-native';
 import { MlkitBarcodeView } from 'react-native-mlkit-barcode';
 
 export default class App extends React.Component {
@@ -14,7 +14,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={{flex:1}}>
         <MlkitBarcodeView
           enableQrScanner={this.state.enableQrScanner}
           style={{
@@ -29,9 +29,9 @@ export default class App extends React.Component {
         />
 
         <TouchableOpacity style={{width:100, height:50,}} onPress={()=>this.setState({enableQrScanner:!this.state.enableQrScanner})}>
-          <Text style={{color:'red', fontSize:20, backgroundColor:'black'}}>{"Open SCanner"}</Text>
+          <Text style={{textAlign:'center',color:'red', fontSize:20, backgroundColor:'black'}}>{"Toggle SCanner"}</Text>
         </TouchableOpacity>    
-      </View>
+        </SafeAreaView>
     );
   }
 }
