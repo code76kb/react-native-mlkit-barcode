@@ -13,7 +13,17 @@ import { MlkitBarcodeView } from "react-native-mlkit-barcode";
 
 // ...
 
-<MlkitBarcodeView color="tomato" />
+ <MlkitBarcodeView
+          enableQrScanner={this.state.enableQrScanner}
+          style={{
+            width: 900,
+            height: 900,
+          }}
+          onSuccess={(data) => {
+            console.log("BarCode :", data);
+            this.setState({enableQrScanner:false})
+          }}
+        />
 ```
 
 ## Contributing
