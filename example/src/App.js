@@ -20,7 +20,6 @@ export default class App extends React.Component {
           style={{
             width: 900,
             height: 900,
-            marginVertical: 20,
           }}
           onSuccess={(data) => {
             console.log("App BarCode On Success :", data);

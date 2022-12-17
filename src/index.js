@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent, useEffect, useRef, useState } from 'react';
-import { UIManager, findNodeHandle, NativeEventEmitter,View } from 'react-native';
+import { UIManager, findNodeHandle, NativeEventEmitter, View } from 'react-native';
 
 import { MlkitBarcodeViewManager } from './MlkitBarcodeViewManager';
 
@@ -21,6 +21,8 @@ const destroyFragment = (viewId) =>
 
 const eventEmitter = new NativeEventEmitter();
 
+const TAG = "MlkitBarcodeView: ";
+
 export class MlkitBarcodeView extends PureComponent {
 
   constructor(props) {
@@ -32,31 +34,30 @@ export class MlkitBarcodeView extends PureComponent {
   }
 
   componentDidMount() {
-   if(this.props.enableQrScanner)
+    if (this.props.enableQrScanner)
       this.startScanner();
   }
   componentWillUnmount() {
     // Here goes the code you wish to run on unmount
     // console.log("MlkitBarcodeView: Unmounting...");
-    this.eventListener.remove();
+    this.eventListener && this.eventListener.remove();
     // destroyFragment(viewId);
   }
 
   componentWillReceiveProps(newProps) {
     this.props = newProps;
     // console.log("MlkitBarcodeView :enableQrScanner :" + this.props.enableQrScanner);
-    if (this.props.enableQrScanner) {
-      this.setState({enableQr:true},()=>{
-        setTimeout(this.startScanner,400)
+    if (this.props.enableQrScanner && !this.state.enableQr) {
+      this.setState({ enableQr: true }, () => {
+        setTimeout(this.startScanner, 400)
       })
-
     }
-    else {
-    this.stopScanner();
+    else if (this.state.enableQr) {
+      this.stopScanner();
     }
   }
 
-  startScanner=()=>{
+  startScanner = () => {
     this.eventListener = eventEmitter.addListener('BARCODE_SCANNED', (event) => {
       console.log(event) // "someValue"
       if (this.props.onSuccess)
@@ -68,22 +69,22 @@ export class MlkitBarcodeView extends PureComponent {
 
   }
 
-  stopScanner=()=>{
-  // this.eventListener.remove();
-  const viewId = findNodeHandle(this.ref.current);
-  destroyFragment(viewId);
-  setTimeout(() =>this.setState({enableQr:false}), 400);
+  stopScanner = () => {
+    // this.eventListener.remove();
+    const viewId = findNodeHandle(this.ref.current);
+    destroyFragment(viewId);
+    setTimeout(() => this.setState({ enableQr: false }), 400);
   }
 
 
   render() {
     if (this.state.enableQr) {
       return (
-        <View style={{...this.props.style}}>
-        <MlkitBarcodeViewManager
-          {...this.props}
-          ref={this.ref}
-        />
+        <View style={{ position: 'absolute' }}>
+          <MlkitBarcodeViewManager
+            {...this.props}
+            ref={this.ref}
+          />
         </View>
       );
     }
