@@ -1,21 +1,14 @@
 package com.reactnativemlkitbarcode;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.media.Image;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Size;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
@@ -23,15 +16,11 @@ import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.LifecycleOwner;
 
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -53,8 +42,9 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
 
   private final double RATIO_4_3_VALUE = 4.0 / 3.0;
   private final double RATIO_16_9_VALUE = 16.0 / 9.0;
+
   private Fragment frag;
-  private PreviewView previewView;
+  private PreviewView previewView = null;
   private BarcodeScanner scanner;
   private ProcessCameraProvider cameraProvider;
   private ImageAnalysis imageAnalysis;
@@ -63,28 +53,22 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
 
   private ReactContext reactContext;
 
+  private int barcodeFormat = 0; // All
+
   public MlKitBarcodeDecoder(Fragment frag, ReactContext reactContext){
     this.frag = frag;
     this.reactContext = reactContext;
   }
 
-  public PreviewView createScannerView(int width, int height){
-    previewView = new PreviewView(frag.getActivity());
-    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    layoutParams.weight = width;
-    layoutParams.height = height;
-    layoutParams.gravity = Gravity.CENTER;
-    previewView.setLayoutParams(layoutParams);
-    previewView.setBackgroundColor(Color.RED);
-    return previewView;
+  public PreviewView createScannerView(){
+    this.previewView = new PreviewView(frag.getActivity());
+    return this.previewView;
   }
 
-  public void updateSize(int width, int height){
-    // Log.e(TAG, "updateSize: W:"+width+" H:"+height);
-    previewView.getLayoutParams().width = width;
-    previewView.getLayoutParams().height = height;
+  public void setBarCodeFormat(int barcodeFormat){
+    Log.e(TAG, "setBarCodeFormat: "+barcodeFormat);
+    this.barcodeFormat = barcodeFormat;
   }
-
 
   /////////////////
   protected void startCamera() {
@@ -109,8 +93,8 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
         cameraProvider = processCameraProvider.get();
 
         cameraProvider.unbindAll();
-        cameraProvider.bindToLifecycle(frag.getActivity(), cameraSelector, preview,imageAnalysis);
-        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        cameraProvider.bindToLifecycle(frag.getActivity(), cameraSelector, preview, imageAnalysis);
+        preview.setSurfaceProvider(this.previewView.getSurfaceProvider());
 
       } catch (ExecutionException e) {
         Log.e(TAG, "startCamera: ExecutionException :"+e.toString());
@@ -134,20 +118,18 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
       cameraProvider.unbindAll();
       cameraProvider.shutdown();
     }
-
-    // Log.e(TAG, "stopAll:....");
   }
 
   private Preview getPreview() {
     return new Preview.Builder()
       .setTargetAspectRatio(aspectRatio())
-      .setTargetRotation(previewView.getDisplay().getRotation())
+      .setTargetRotation(this.previewView.getDisplay().getRotation())
       .build();
   }
 
   private int aspectRatio() {
     DisplayMetrics displayMetrics = new DisplayMetrics();
-    previewView.getDisplay().getRealMetrics(displayMetrics);
+    this.previewView.getDisplay().getRealMetrics(displayMetrics);
     double previewRatio = (double) Math.max(displayMetrics.widthPixels, displayMetrics.heightPixels) / Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
     if (Math.abs(previewRatio - RATIO_4_3_VALUE) <= Math.abs(previewRatio - RATIO_16_9_VALUE)) {
       return AspectRatio.RATIO_4_3;
@@ -156,10 +138,10 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
   }
 
   private void createBarCodeScanner(){
+    Log.e(TAG, "createBarCodeScanner: BarCode Format :"+barcodeFormat);
     BarcodeScannerOptions options =
       new BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(
-          Barcode.FORMAT_ALL_FORMATS)
+        .setBarcodeFormats(barcodeFormat)
         .build();
     scanner = BarcodeScanning.getClient(options);
   }
@@ -168,7 +150,6 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
   @SuppressLint("UnsafeOptInUsageError")
   @Override
   public void analyze(@NonNull ImageProxy imageProxy) {
-//    Log.e(TAG, "analyze: ImageProxy:"+imageProxy.getImageInfo().getTimestamp());
     Image mediaImage = imageProxy.getImage();
     if (mediaImage != null) {
       InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
@@ -176,8 +157,6 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
         @Override
         public void onSuccess(List<Barcode> barcodes) {
           if(barcodes.size() > 0){
-//                Log.e(TAG, "analyze: ImageProxy: H:  "+imageProxy.getImage().getHeight()+" W :"+imageProxy.getImage().getWidth());
-            // Log.e(TAG, "onSuccess: BarCodes :"+barcodes.size());
             String rawValue = barcodes.get(barcodes.size()-1).getRawValue();
             Log.e(TAG, "onSuccess: RawValue :"+rawValue);
             sendEvent(rawValue);
@@ -196,7 +175,9 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
           @Override
           public void onCanceled() {
             Log.e(TAG, "onCanceled: ....");
-
+            if(mediaImage!=null)
+              mediaImage.close();
+            imageProxy.close();
           }
         })
         .addOnCompleteListener(new OnCompleteListener<List<Barcode>>() {

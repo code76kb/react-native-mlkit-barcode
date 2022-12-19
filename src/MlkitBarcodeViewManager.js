@@ -2,7 +2,6 @@ import {
   requireNativeComponent,
   UIManager,
   Platform,
-  ViewStyle,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -13,7 +12,7 @@ const LINKING_ERROR =
   '- You are not using Expo managed workflow\n';
 
 MlkitBarcodeProps = {
-  color: PropTypes.string,
+  barcodeFormat: PropTypes.number,
   style: ViewStyle,
 };
 

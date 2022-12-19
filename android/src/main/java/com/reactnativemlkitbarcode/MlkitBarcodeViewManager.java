@@ -1,6 +1,5 @@
 package com.reactnativemlkitbarcode;
 
-import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Choreographer;
@@ -29,10 +28,7 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
   private MlKitBarcodeFragment scannerFrag;
   private ThemedReactContext reactContext;
 
-  private int WIDTH = 0;
-  private int HEIGHT = 0;
-
-  private MlKitBarcodeDecoder mlKitBarcodeDecoder;
+  private int barcodeFormat = 0;
 
   @Override
   @NonNull
@@ -42,63 +38,20 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
 
   public MlkitBarcodeViewManager() {
     super();
-    // Log.e(TAG, "MlkitBarcodeViewManager:  Construct....");
   }
 
   @Override
   @NonNull
   public FrameLayout createViewInstance(ThemedReactContext reactContext) {
     this.reactContext = reactContext;
-//    previewView = new PreviewView(reactContext.getCurrentActivity());
-//    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//    layoutParams.weight = 300;
-//    layoutParams.height = 200;
-//    previewView.setLayoutParams(layoutParams);
-//    Log.e(TAG, "createViewInstance: View instance Created...");
-//    startCamera();
-
-//    scannerView = new ScannerView(reactContext);
-//    this.startScanner();
-//    return scannerView.createScannerView(100,200);
-
     FrameLayout frameLayout = new FrameLayout(reactContext);
     return frameLayout;
-  }
-
-  @ReactProp(name = "width")
-  public void setWidth(View view, int width) {
-    // Log.e(TAG, "setWidth: " + width);
-//    view.getLayoutParams().width = width;
-    WIDTH = width;
-    if(scannerFrag != null && scannerFrag.getScannerView() != null)
-      scannerFrag.getScannerView().updateSize(WIDTH,HEIGHT);
-  }
-
-  @ReactProp(name = "height")
-  public void setHeight(View view, int height) {
-    // Log.e(TAG, "setHeight: " + height);
-//    view.getLayoutParams().height = height;
-    HEIGHT = height;
-    if(scannerFrag != null && scannerFrag.getScannerView() != null)
-      scannerFrag.getScannerView().updateSize(WIDTH,HEIGHT);
-  }
-
-  private void startScanner(){
-    Handler handler = new Handler();
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        mlKitBarcodeDecoder.startCamera();
-      }
-    },1200);
   }
 
   @Override
   public void receiveCommand(@NonNull FrameLayout root, String commandId, @Nullable ReadableArray args) {
     super.receiveCommand(root, commandId, args);
     int reactNativeViewId = args.getInt(0);
-
-    // Log.e(TAG, "receiveCommand: "+commandId);
     switch (commandId) {
       case COMMAND_CREATE:{
         createFragment(root, reactNativeViewId);
@@ -111,14 +64,17 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
     }
   }
 
+  @ReactProp(name="barcodeFormat")
+  public void setBarcodeFormat( View view,int barcodeFormat){
+//    Log.e(TAG, "setBarcodeFormat: "+ barcodeFormat);
+    this.barcodeFormat = barcodeFormat;
+  }
 
 
   public void createFragment(FrameLayout root, int reactNativeViewId) {
-    // Log.e(TAG, "createFragment: ..."+reactNativeViewId+" rootID:"+root.getId());
     ViewGroup parentView = (ViewGroup) root.findViewById(reactNativeViewId);
     this.setupLayout(parentView);
-    this.scannerFrag = new MlKitBarcodeFragment(WIDTH,HEIGHT,reactContext);
-    // Log.e(TAG, "Fragment Transaction... ");
+    this.scannerFrag = new MlKitBarcodeFragment(reactContext, barcodeFormat);
     FragmentActivity activity = (FragmentActivity) this.reactContext.getCurrentActivity();
     activity.getSupportFragmentManager()
       .beginTransaction()
@@ -130,11 +86,9 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
     try {
       if(scannerFrag != null && scannerFrag.getScannerView() != null)
         scannerFrag.getScannerView().stopAll();
-
       Choreographer.getInstance().removeFrameCallback(this.frameCallback);
       FragmentActivity activity = (FragmentActivity) this.reactContext.getCurrentActivity();
       activity.getSupportFragmentManager().beginTransaction().remove(this.scannerFrag).commit();
-      // Log.e(TAG, "Fragment removed...");
     }
     catch (Exception e){
       Log.e(TAG, "removeFragment: Error :"+e.toString());
@@ -146,7 +100,6 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
       this.frameCallback = new Choreographer.FrameCallback() {
         @Override
         public void doFrame(long frameTimeNanos) {
-//        Log.e(TAG, "doFrame: "+frameTimeNanos);
           manuallyLayoutChildren(view);
           view.getViewTreeObserver().dispatchOnGlobalLayout();
           Choreographer.getInstance().postFrameCallback(this);
@@ -162,7 +115,6 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
 
   public void manuallyLayoutChildren(View view) {
     try{
-//      Log.e(TAG, "manuallyLayoutChildren:... ");
       DisplayMetrics displayMetrics = new DisplayMetrics();
       WindowManager windowManager = this.reactContext.getCurrentActivity().getWindowManager();
       windowManager.getDefaultDisplay().getMetrics(displayMetrics);

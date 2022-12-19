@@ -20,13 +20,12 @@ public class MlKitBarcodeFragment extends Fragment {
 
   private MlKitBarcodeDecoder mlKitBarcodeDecoder = null;
   private ReactContext reactContext;
-  private int width;
-  private int height;
+  private int barcodeFormat;
 
-  public MlKitBarcodeFragment(int width, int height, ThemedReactContext reactContext) {
+
+  public MlKitBarcodeFragment(ThemedReactContext reactContext, int barcodeFormat) {
     this.reactContext = reactContext;
-    this.width = width;
-    this.height = height;
+    this.barcodeFormat = barcodeFormat;
   }
 
   public MlKitBarcodeDecoder getScannerView(){
@@ -40,7 +39,7 @@ public class MlKitBarcodeFragment extends Fragment {
     mlKitBarcodeDecoder = new MlKitBarcodeDecoder(this, reactContext);
     RelativeLayout relativeLayout = new RelativeLayout(MlKitBarcodeFragment.this.getContext());
     relativeLayout.setGravity(Gravity.CENTER);
-    relativeLayout.addView(mlKitBarcodeDecoder.createScannerView(width,height));
+    relativeLayout.addView(mlKitBarcodeDecoder.createScannerView());
 
     return relativeLayout;
 //    return null;
@@ -49,34 +48,10 @@ public class MlKitBarcodeFragment extends Fragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    mlKitBarcodeDecoder.startCamera();
-    // Log.e(TAG, "onViewCreated: ");
-  }
+     Log.e(TAG, "onViewCreated: ");
+      mlKitBarcodeDecoder.setBarCodeFormat(barcodeFormat);
+      mlKitBarcodeDecoder.startCamera();
 
-  @Override
-  public void onPause() {
-    super.onPause();
-    // Log.e(TAG, "onPause: ");
-  }
-
-  @Override
-  public void onStop() {
-    super.onStop();
-    // Log.e(TAG, "onStop: ");
-  }
-
-  @Override
-  public void onDetach() {
-    super.onDetach();
-    // Log.e(TAG, "onDetach: ");
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-    // Log.e(TAG, "onDestroy: ....");
-//    if(scannerView != null)
-//      scannerView.stopAll();
   }
 
 }
