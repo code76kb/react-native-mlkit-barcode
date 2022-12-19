@@ -50,31 +50,31 @@ public class MlKitBarcodeFragment extends Fragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     mlKitBarcodeDecoder.startCamera();
-    Log.e(TAG, "onViewCreated: ");
+    // Log.e(TAG, "onViewCreated: ");
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    Log.e(TAG, "onPause: ");
+    // Log.e(TAG, "onPause: ");
   }
 
   @Override
   public void onStop() {
     super.onStop();
-    Log.e(TAG, "onStop: ");
+    // Log.e(TAG, "onStop: ");
   }
 
   @Override
   public void onDetach() {
     super.onDetach();
-    Log.e(TAG, "onDetach: ");
+    // Log.e(TAG, "onDetach: ");
   }
 
   @Override
   public void onDestroy() {
     super.onDestroy();
-    Log.e(TAG, "onDestroy: ....");
+    // Log.e(TAG, "onDestroy: ....");
 //    if(scannerView != null)
 //      scannerView.stopAll();
   }

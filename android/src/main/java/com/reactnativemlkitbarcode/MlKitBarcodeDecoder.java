@@ -80,7 +80,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
   }
 
   public void updateSize(int width, int height){
-    Log.e(TAG, "updateSize: W:"+width+" H:"+height);
+    // Log.e(TAG, "updateSize: W:"+width+" H:"+height);
     previewView.getLayoutParams().width = width;
     previewView.getLayoutParams().height = height;
   }
@@ -135,7 +135,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
       cameraProvider.shutdown();
     }
 
-    Log.e(TAG, "stopAll:....");
+    // Log.e(TAG, "stopAll:....");
   }
 
   private Preview getPreview() {
@@ -159,7 +159,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
     BarcodeScannerOptions options =
       new BarcodeScannerOptions.Builder()
         .setBarcodeFormats(
-          Barcode.FORMAT_QR_CODE)
+          Barcode.FORMAT_ALL_FORMATS)
         .build();
     scanner = BarcodeScanning.getClient(options);
   }
@@ -177,7 +177,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
         public void onSuccess(List<Barcode> barcodes) {
           if(barcodes.size() > 0){
 //                Log.e(TAG, "analyze: ImageProxy: H:  "+imageProxy.getImage().getHeight()+" W :"+imageProxy.getImage().getWidth());
-            Log.e(TAG, "onSuccess: BarCodes :"+barcodes.size());
+            // Log.e(TAG, "onSuccess: BarCodes :"+barcodes.size());
             String rawValue = barcodes.get(barcodes.size()-1).getRawValue();
             Log.e(TAG, "onSuccess: RawValue :"+rawValue);
             sendEvent(rawValue);
