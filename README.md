@@ -9,18 +9,15 @@ npm install react-native-mlkit-barcode
 ## Usage
 
 ```js
-import { MlkitBarcodeView } from "react-native-mlkit-barcode";
+import { MlkitBarcodeView, BARCODE } from "react-native-mlkit-barcode";
 
 // ...
 
  <MlkitBarcodeView
           enableQrScanner={this.state.enableQrScanner}
-          style={{
-            width: 900,
-            height: 900,
-          }}
+          barcodeFormat={BARCODE.FORMAT_ALL_FORMATS}
           onSuccess={(data) => {
-            console.log("BarCode :", data);
+            console.log("App BarCode On Success :", data);
             this.setState({enableQrScanner:false})
           }}
         />
