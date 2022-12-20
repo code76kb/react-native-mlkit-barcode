@@ -13,7 +13,6 @@ const LINKING_ERROR =
 
 MlkitBarcodeProps = {
   barcodeFormat: PropTypes.number,
-  style: ViewStyle,
 };
 
 const ComponentName = 'MlkitBarcodeViewManager';
