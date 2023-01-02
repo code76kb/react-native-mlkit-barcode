@@ -2,6 +2,7 @@ import {
   requireNativeComponent,
   UIManager,
   Platform,
+  ViewStyle,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -13,6 +14,7 @@ const LINKING_ERROR =
 
 MlkitBarcodeProps = {
   barcodeFormat: PropTypes.number,
+  style: ViewStyle
 };
 
 const ComponentName = 'MlkitBarcodeViewManager';

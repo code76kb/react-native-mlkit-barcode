@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
@@ -27,6 +28,9 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
   private Choreographer.FrameCallback  frameCallback;
   private MlKitBarcodeFragment scannerFrag;
   private ThemedReactContext reactContext;
+
+  private int WIDTH = 0;
+  private int HEIGHT = 0;
 
   private int barcodeFormat = 0;
 
@@ -45,6 +49,7 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
   public FrameLayout createViewInstance(ThemedReactContext reactContext) {
     this.reactContext = reactContext;
     FrameLayout frameLayout = new FrameLayout(reactContext);
+    Fresco.initialize(reactContext);
     return frameLayout;
   }
 
@@ -66,15 +71,33 @@ public class MlkitBarcodeViewManager extends ViewGroupManager<FrameLayout> {
 
   @ReactProp(name="barcodeFormat")
   public void setBarcodeFormat( View view,int barcodeFormat){
-//    Log.e(TAG, "setBarcodeFormat: "+ barcodeFormat);
     this.barcodeFormat = barcodeFormat;
   }
 
+  @ReactProp(name = "height")
+  public void setHeight(View view, int height) {
+    Log.e(TAG, "setHeight: "+height);
+    HEIGHT = height;
+    if(scannerFrag != null)
+        scannerFrag.updatePreviewSize(WIDTH,HEIGHT);
+  }
+
+  @ReactProp(name = "width")
+  public void setWidth(View view, int width) {
+    Log.e(TAG, "setWidth: "+width);
+    WIDTH = width;
+    if(scannerFrag != null)
+      scannerFrag.updatePreviewSize(WIDTH,HEIGHT);
+  }
+
+
 
   public void createFragment(FrameLayout root, int reactNativeViewId) {
+    Log.e(TAG, "createFragment:...");
     ViewGroup parentView = (ViewGroup) root.findViewById(reactNativeViewId);
     this.setupLayout(parentView);
     this.scannerFrag = new MlKitBarcodeFragment(reactContext, barcodeFormat);
+    this.scannerFrag.updatePreviewSize(WIDTH,HEIGHT);
     FragmentActivity activity = (FragmentActivity) this.reactContext.getCurrentActivity();
     activity.getSupportFragmentManager()
       .beginTransaction()

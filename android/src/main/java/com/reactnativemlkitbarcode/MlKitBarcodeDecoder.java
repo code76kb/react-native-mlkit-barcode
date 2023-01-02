@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.AspectRatio;
@@ -60,8 +61,8 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
     this.reactContext = reactContext;
   }
 
-  public PreviewView createScannerView(){
-    this.previewView = new PreviewView(frag.getActivity());
+  public PreviewView createScannerView(PreviewView previewView){
+    this.previewView = previewView; //new PreviewView(frag.getActivity());
     return this.previewView;
   }
 
@@ -72,6 +73,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
 
   /////////////////
   protected void startCamera() {
+    Log.e(TAG, "starting Camera:...");
     createBarCodeScanner();
     mainThreadExecutor = new MainThreadExecutor();
 
@@ -109,6 +111,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
 
   @SuppressLint("RestrictedApi")
   protected void stopAll(){
+    Log.e(TAG, "stopping All...");
     if(imageAnalysis != null){
       imageAnalysis.clearAnalyzer();
     }
@@ -116,20 +119,27 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
       scanner.close();
     if(cameraProvider!=null){
       cameraProvider.unbindAll();
-      cameraProvider.shutdown();
+//      cameraProvider.shutdown();
     }
   }
 
   private Preview getPreview() {
     return new Preview.Builder()
-      .setTargetAspectRatio(aspectRatio())
+      .setTargetResolution(getRes())
       .setTargetRotation(this.previewView.getDisplay().getRotation())
       .build();
+  }
+
+  private Size getRes() {
+    DisplayMetrics displayMetrics = new DisplayMetrics();
+    this.previewView.getDisplay().getRealMetrics(displayMetrics);
+    return new Size(displayMetrics.widthPixels,displayMetrics.heightPixels);
   }
 
   private int aspectRatio() {
     DisplayMetrics displayMetrics = new DisplayMetrics();
     this.previewView.getDisplay().getRealMetrics(displayMetrics);
+    Log.e(TAG, "PreviewSize :: W:"+displayMetrics.widthPixels+", H:"+displayMetrics.heightPixels);
     double previewRatio = (double) Math.max(displayMetrics.widthPixels, displayMetrics.heightPixels) / Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
     if (Math.abs(previewRatio - RATIO_4_3_VALUE) <= Math.abs(previewRatio - RATIO_16_9_VALUE)) {
       return AspectRatio.RATIO_4_3;

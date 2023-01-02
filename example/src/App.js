@@ -21,6 +21,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaView style={{flex:1}}>
         <MlkitBarcodeView
+          style={{width:800, height:800}}
           enableQrScanner={this.state.enableQrScanner}
           barcodeFormat={BARCODE.FORMAT_ALL_FORMATS}
           onSuccess={(data) => {
