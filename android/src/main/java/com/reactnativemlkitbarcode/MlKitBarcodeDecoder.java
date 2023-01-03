@@ -95,7 +95,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
         cameraProvider = processCameraProvider.get();
 
         cameraProvider.unbindAll();
-        cameraProvider.bindToLifecycle(frag.getActivity(), cameraSelector, preview, imageAnalysis);
+        cameraProvider.bindToLifecycle(frag, cameraSelector, preview, imageAnalysis);
         preview.setSurfaceProvider(this.previewView.getSurfaceProvider());
 
       } catch (ExecutionException e) {
@@ -119,7 +119,7 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
       scanner.close();
     if(cameraProvider!=null){
       cameraProvider.unbindAll();
-//      cameraProvider.shutdown();
+      cameraProvider.shutdown();
     }
   }
 
@@ -134,17 +134,6 @@ public class MlKitBarcodeDecoder implements ImageAnalysis.Analyzer{
     DisplayMetrics displayMetrics = new DisplayMetrics();
     this.previewView.getDisplay().getRealMetrics(displayMetrics);
     return new Size(displayMetrics.widthPixels,displayMetrics.heightPixels);
-  }
-
-  private int aspectRatio() {
-    DisplayMetrics displayMetrics = new DisplayMetrics();
-    this.previewView.getDisplay().getRealMetrics(displayMetrics);
-    Log.e(TAG, "PreviewSize :: W:"+displayMetrics.widthPixels+", H:"+displayMetrics.heightPixels);
-    double previewRatio = (double) Math.max(displayMetrics.widthPixels, displayMetrics.heightPixels) / Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
-    if (Math.abs(previewRatio - RATIO_4_3_VALUE) <= Math.abs(previewRatio - RATIO_16_9_VALUE)) {
-      return AspectRatio.RATIO_4_3;
-    }
-    return AspectRatio.RATIO_16_9;
   }
 
   private void createBarCodeScanner(){

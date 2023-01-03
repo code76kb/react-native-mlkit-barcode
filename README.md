@@ -14,11 +14,12 @@ import { MlkitBarcodeView, BARCODE } from "react-native-mlkit-barcode";
 // ...
 
  <MlkitBarcodeView
-          enableQrScanner={this.state.enableQrScanner}
+          style={{width:800, height:800}}
+          enableScanner={this.state.enableScanner}
           barcodeFormat={BARCODE.FORMAT_ALL_FORMATS}
           onSuccess={(data) => {
-            console.log("App BarCode On Success :", data);
-            this.setState({enableQrScanner:false})
+            console.log("BarCode On Success :", data);
+            this.setState({enableScanner:false})
           }}
         />
 ```

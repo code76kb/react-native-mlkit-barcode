@@ -35,21 +35,25 @@ export const BARCODE = {
   //  TYPE_DRIVER_LICENSE : 12,
 }
 
-const createFragment = (viewId) =>
+const createFragment = (viewId) =>{
+  console.log(TAG,"Create Frag ViewId :",viewId);
   UIManager.dispatchViewManagerCommand(
     viewId,
     // we are calling the 'create' command
     "create",
     [viewId]
   );
+}
 
-const destroyFragment = (viewId) =>
+const destroyFragment = (viewId) =>{
+  console.log(TAG,"Destroy Frag ViewId :",viewId);
   UIManager.dispatchViewManagerCommand(
     viewId,
     // we are calling the 'create' command
     "destroy",
     [viewId]
   );
+}
 
 const eventEmitter = new NativeEventEmitter();
 
@@ -60,49 +64,54 @@ export class MlkitBarcodeView extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      enableQr: this.props.enableQrScanner,
+      enableScan: this.props.enableScanner,
     }
     this.ref = createRef();
   }
 
   componentDidMount() {
-    // console.log(TAG, "componentDidMount...");
-    if (this.props.enableQrScanner)
-      this.startScanner();
+    console.log(TAG, "componentDidMount.");
+    if (this.props.enableScanner)
+      setTimeout(this.startScanner, 200)
+      // this.startScanner();
   }
   componentWillUnmount() {
     // Here goes the code you wish to run on unmount
-    // console.log("MlkitBarcodeView: Unmounting...");
-    this.eventListener && this.eventListener.remove();
+    console.log(TAG,"WillUnmount.");
+    // const viewId = findNodeHandle(this.ref.current);
     // destroyFragment(viewId);
+    // this.setState({enableScan:false});
+    this.eventListener && this.eventListener.remove();
   }
 
   componentWillReceiveProps(newProps) {
-    // console.log(TAG, "Will receiveProps  :enableQrScanner this.Props :"+ JSON.stringify(this.props) +" new Props"+JSON.stringify(newProps)+ " enableQr :" + this.state.enableQr);
-      if (newProps.enableQrScanner && !this.state.enableQr) {
-        this.setState({ enableQr: true }, () => {
+      if (newProps.enableScanner && !this.state.enableScan) {
+        this.setState({ enableScan: true }, () => {
+          // console.log(TAG,"Starting Scanner enableScan");
           setTimeout(this.startScanner, 400)
         })
       }
-      else if (!newProps.enableQrScanner && this.state.enableQr) {
-        this.stopScanner();
+      else if (!newProps.enableScanner && this.state.enableScan) {
+        this.setState({enableScan:newProps.enableScanner});
       }
 
       //BarCode updated restart scanner.
-      if(this.props.enableQrScanner && newProps.barcodeFormat != this.props.barcodeFormat){
-        this.stopScanner();
-        setTimeout(()=>{
-          this.setState({enableQr:true},()=>{
-            setTimeout(this.startScanner, 400);
-          });
-        },700);
+      if(this.props.enableScanner && newProps.barcodeFormat != this.props.barcodeFormat){
+        this.setState({enableScanner:false},()=>{
+          setTimeout(()=>{
+            this.setState({enableScan:true},()=>{
+              // console.log(TAG,"Starting Scanner BarcodeFormate Changed");
+              setTimeout(this.startScanner, 400);
+            });
+          },700);
+        });
       }
 
       this.props = newProps;
   }
 
   startScanner = () => {
-    // console.log(TAG, "startScanner....");
+    // console.log(TAG, "startScanner.... enableScan :"+this.state.enableScan);
     this.eventListener = eventEmitter.addListener('BARCODE_SCANNED', (event) => {
       console.log(event) // "someValue"
       if (this.props.onSuccess)
@@ -114,17 +123,10 @@ export class MlkitBarcodeView extends PureComponent {
 
   }
 
-  stopScanner = () => {
-    // console.log(TAG, 'stopScanner...');
-    // this.eventListener.remove();
-    const viewId = findNodeHandle(this.ref.current);
-    destroyFragment(viewId);
-    setTimeout(() => this.setState({ enableQr: false }), 400);
-  }
 
 
   render() {
-    if (this.state.enableQr) {
+    if (this.state.enableScan) {
       return (
         <View style={{ position: 'absolute', width: 0, height: 0 }}>
           <MlkitBarcodeViewManager
