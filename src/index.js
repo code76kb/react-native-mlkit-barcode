@@ -84,7 +84,7 @@ export class MlkitBarcodeView extends PureComponent {
     this.eventListener && this.eventListener.remove();
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
       if (newProps.enableScanner && !this.state.enableScan) {
         this.setState({ enableScan: true }, () => {
           // console.log(TAG,"Starting Scanner enableScan");
