@@ -128,12 +128,10 @@ export class MlkitBarcodeView extends PureComponent {
   render() {
     if (this.state.enableScan) {
       return (
-        <View style={{ position: 'absolute', width: 0, height: 0 }}>
           <MlkitBarcodeViewManager
             {...this.props}
             ref={this.ref}
           />
-        </View>
       );
     }
     else
